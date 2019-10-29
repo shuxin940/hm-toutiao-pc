@@ -29,6 +29,7 @@
 </template>
 
 <script>
+import local from '@/utils/local'
 export default {
   data () {
     const checkMobile = (rule, value, callback) => {
@@ -72,23 +73,17 @@ export default {
   },
   methods: {
     login () {
-      // 对整个表单进行验证
-      this.$refs['loginForm'].validate(valid => {
+      // 对整个表单进行校验
+      this.$refs['loginForm'].validate(async valid => {
         if (valid) {
-          // 校验成功 进行登录(发请求)
-          // post(url,参数对象)
-          // get(url,{params:参数对象})
-          this.$http
-            .post('authorizations', this.LoginForm)
-            .then(res => {
-              // 成功
-              this.$router.push('/')
-              // console.log(123)
-            })
-            .catch(() => {
-              // 失败 提示
-              this.$message.error('手机号或验证码错误')
-            })
+          // 以下代码可能出现异常（报错）  使用try{ 可能报错代码 }catch(e){ 处理错误 }
+          try {
+            const { data: { data } } = await this.$http.post('authorizations', this.LoginForm)
+            local.setUser(data)
+            this.$router.push('/')
+          } catch (e) {
+            this.$message.error('手机号或验证码错误')
+          }
         }
       })
     }
